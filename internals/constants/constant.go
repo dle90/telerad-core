@@ -30,6 +30,10 @@ const ROLE_JWT_KEY string = "roles"
 const ROLE_ADMIN string = "ADMIN"
 const ROLE_DOCTOR string = "DOCTOR"
 
+// MODALITIES — danh sách loại chụp theo thứ tự hiển thị chuẩn (dùng để nhóm
+// đối tác theo loại chụp ở màn "Đọc ca").
+var MODALITIES = []string{"CT", "MR", "US", "CR", "MG"}
+
 // Warning Type
 const WARNING_TYPE_TELEGRAM = 1
 

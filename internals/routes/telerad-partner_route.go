@@ -24,4 +24,7 @@ func TeleradPartnerRoutes() {
 
 	// đổi mật khẩu phía telerad (không cho đổi username)
 	staffCollection.Patch("/:objectId/change-password", controllers.StaffChangeTeleradPartnerPassword)
+
+	// cây bên trái: đối tác nhóm theo loại chụp (theo quyền user)
+	staffCollection.Get("/actions/get-partners-for-reading", controllers.StaffGetTeleradPartnersForReading)
 }

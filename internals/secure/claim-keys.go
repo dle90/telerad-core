@@ -19,11 +19,8 @@ const JWT_TYPE_PACS_VIEWER string = "PACS-VIEWER"
 const JWT_TYPE_INTEGRATION string = "ITG"
 const JWT_TYPE_TELERAD_PARTNER string = "TELERAD-PARTNER"
 
-const JWT_AUD_HIS string = "HIS"
-const JWT_AUD_LOCAL_GATEWAY_SERVER string = "LOCAL-GATEWAY-SERVER"
 const JWT_AUD_TELERAD string = "TELERAD"
 
-const JWT_ISS_HIS string = "HIS"
 const JWT_ISS_TELERAD string = "TELERAD"
 
 // Header constant
