@@ -84,6 +84,11 @@ func GetProductPort() string {
 	return commonConfigs.GetEnvFromOS("PRODUCT_PORT")
 }
 
+// GetPacsViewerUrl trả URL pacs-viewer (mở ảnh DICOM theo StudyInstanceUID).
+func GetPacsViewerUrl() string {
+	return commonConfigs.GetEnvFromOS("PACS_VIEWER_URL")
+}
+
 // End get Product Common Config
 
 // Start get cache config

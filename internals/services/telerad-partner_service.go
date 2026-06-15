@@ -5,12 +5,14 @@ import (
 	"strings"
 
 	baseServices "telerad-core-module/internals/base-services"
+	"telerad-core-module/internals/constants"
 	"telerad-core-module/internals/entities"
 	objectMappers "telerad-core-module/internals/object-mappers"
 	"telerad-core-module/internals/repositories"
 	teleradPartnerControllerRequests "telerad-core-module/internals/requests/telerad-partner-controller_requests"
 	"telerad-core-module/internals/responses"
 	teleradPartnerControllerResponses "telerad-core-module/internals/responses/telerad-partner-controller_responses"
+	teleradReadingOrderControllerResponses "telerad-core-module/internals/responses/telerad-reading-order-controller_responses"
 	"telerad-core-module/internals/secure"
 
 	_errorMessages "telerad-core-module/error"
@@ -220,4 +222,32 @@ func findTeleradPartnerOrFail(ctx context.Context, partnerUuid uuid.UUID) (*enti
 	}
 
 	return partner, nil
+}
+
+// StaffGetReadingOrderPartnersByModality trả cây bên trái màn "Đọc ca": danh sách
+// đối tác nhóm theo loại chụp, lọc theo QUYỀN của user đang đăng nhập. ADMIN xem
+// tất cả đối tác / loại chụp; user thường chỉ thấy partner + modality được phân.
+func StaffGetTeleradPartnersForReading(
+	ctx context.Context,
+	userUuid uuid.UUID,
+) ([]teleradReadingOrderControllerResponses.ReadingOrderPartnerGroupResponse, *_error.SystemError) {
+	staff, isAdmin, systemErr := resolveReadingScope(ctx, bunNoTransaction, userUuid)
+	if systemErr != nil {
+		return nil, systemErr
+	}
+
+	partners, err := repositories.FindTeleradPartnersForReading(ctx, bunNoTransaction, isAdmin, staff.TeleradPartnerUuids, staff.Modalities)
+	if err != nil {
+		return nil, _error.New(err)
+	}
+
+	// Gom đối tác theo loại chụp. User thường chỉ gom các loại chụp được phân;
+	allowedModalities := constants.MODALITIES
+	if !isAdmin {
+		allowedModalities = staff.Modalities
+	}
+
+	groups := objectMappers.ToReadingOrderPartnerGroupSlice(partners, allowedModalities)
+
+	return groups, nil
 }

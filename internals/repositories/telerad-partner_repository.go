@@ -7,7 +7,40 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
 )
+
+// FindTeleradPartnersForReading lấy đối tác cho cây màn "Đọc ca" của user thường:
+// uuid nằm trong danh sách được phân (partnerUuids) VÀ có ít nhất 1 loại chụp giao
+// với modalities được phân (toán tử overlap mảng `&&` của Postgres). Đẩy lọc xuống
+// DB thay vì load tất cả rồi lọc in-memory.
+func FindTeleradPartnersForReading(
+	ctx context.Context,
+	tx bun.IDB,
+	isAdmin bool,
+	partnerUuids []uuid.UUID,
+	modalities []string,
+) ([]entities.TeleradPartnerEntity, error) {
+	records := []entities.TeleradPartnerEntity{}
+
+	query := tx.NewSelect().
+		Model(&records).
+		OrderExpr("?TableAlias.code ASC, ?TableAlias.uuid ASC")
+
+	if !isAdmin {
+		if len(partnerUuids) == 0 || len(modalities) == 0 {
+			return records, nil
+		}
+		query = query.Where("?TableAlias.uuid IN (?)", bun.List(partnerUuids)).
+			Where("?TableAlias.modalities && ?", pgdialect.Array(modalities))
+	}
+
+	if err := query.Scan(ctx); err != nil {
+		return nil, err
+	}
+
+	return records, nil
+}
 
 func FindPaginatedTeleradPartners(
 	ctx context.Context,

@@ -19,3 +19,7 @@ const TELERAD_E102_003 string = "Tên đăng nhập đã tồn tại"
 const TELERAD_E102_004 string = "Nhân viên đã có tài khoản đăng nhập"
 const TELERAD_E102_005 string = "Nhân viên chưa có tài khoản đăng nhập"
 const TELERAD_E102_006 string = "Không thể thao tác trên tài khoản quản trị"
+
+// Nhóm lỗi TELERAD E103: ca đọc (telerad_reading_order)
+const TELERAD_E103_001 string = "Ca đọc không tồn tại"
+const TELERAD_E103_002 string = "Bạn không có quyền đọc ca này"
