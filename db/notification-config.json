@@ -1,0 +1,39 @@
+[{
+  "_id": {
+    "$oid": "639bea5e8be1a9ad907430c9"
+  },
+  "code": "vnCare-notification",
+  "name": "[vnCare] Warning - Báo lỗi tích hợp",
+  "description": "Hệ thống gửi thông báo lỗi tích hợp của vnCare",
+  "status": 1,
+  "telegram": {
+    "token": "5819095696:AAFfa9UQPPm7EvsuvOA9qehQtE3L28fo_7I",
+    "chatId": "-881481827",
+    "description": "Tên-group-telegram: [vnCare] Warning - Báo lỗi tích hợp"
+  },
+  "apiKey": "1234567890",
+  "secretkey": "0987654321!@#$%^&*()",
+  "createdAt": 1671162462,
+  "updateAt": 1671162462,
+  "createUser": "ADMIN",
+  "updateUser": "ADMIN"
+},{
+  "_id": {
+    "$oid": "63ad0cd2a9e8d6d48523bb61"
+  },
+  "code": "vnCare-HSSK-DEV",
+  "name": "[vnCare-HSSK] Báo lỗi tích hợp HSSK (Dev/Test)",
+  "description": "Hệ thống gửi thông báo lỗi tích hợp HSSK & vnCare",
+  "status": 1,
+  "telegram": {
+    "token": "5655549581:AAEx_0gX8Sn7-C3CqUjc7LN2D7M1J1fJF4A",
+    "chatId": "-855574874",
+    "description": "Tên-group-telegram: [vnCare-HSSK] Báo lỗi tích hợp HSSK (Dev/Test)"
+  },
+  "apiKey": "xcj3J3qpiIE7ZNy98ZeJmH",
+  "secretkey": "4SAYnP!ZNy98Ze@$JmHOxcGPk4#%2PTd",
+  "createdAt": 1671162462,
+  "updateAt": 1671162462,
+  "createUser": "ADMIN",
+  "updateUser": "ADMIN"
+}]

@@ -1,0 +1,169 @@
+[{
+  "_id": {
+    "$oid": "639bf39c9cb6e27c6b876d07"
+  },
+  "code": "QLHK",
+  "name": "Hệ thống QLHK",
+  "description": "cấu hình tất cả dịch vụ của QLHK muốn health-check vào đây",
+  "status": 1,
+  "services": [
+    {
+      "code": "QLHK-API",
+      "name": "Hệ thống QLHK API",
+      "url": "http://qlhk-api-service:30168/patient_api/api/public/qldlk/v1.3.0/dscsyt?madiaphuong=01",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại hệ thống QLHK-API đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    },
+    {
+      "code": "QLHK-Website",
+      "name": "Hệ thống QLHK Web",
+      "url": "http://qlhk-web-service:30169/qlhk/login",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại Web QLHK đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    },
+    {
+      "code": "Payment-Gateway",
+      "name": "Hệ thống Payment-Gateway",
+      "url": "http://paymentgw-service:30167",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại Payment API đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    },
+    {
+      "code": "Patient-Gateway",
+      "name": "Hệ thống Patient-Gateway",
+      "url": "http://patient-gateway-service:30166/patient-gateway/api/health-check",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại PATIENT API đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    },
+    {
+      "code": "News-API",
+      "name": "Hệ thống News-API",
+      "url": "http://news-api-service:30175/health-check",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại News-API đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    },
+    {
+      "code": "Schedule-Service",
+      "name": "Hệ thống Schedule-Service",
+      "url": "http://schedule-service:80/management/health",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại Schedule-Service đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    },
+    {
+      "code": "IT3-Auth-Service",
+      "name": "Hệ thống IT3-Auth-Service",
+      "url": "http://auth-service/v3/api-docs",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại IT3-Auth-Service đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    },
+    {
+      "code": "IT3-API(Business)-Service",
+      "name": "Hệ thống IT3-API(Business)-Service",
+      "url": "http://business-service/api/HISCatalog/get-danh-sach-dia-phuong-csyt",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại IT3-API(Business)-Service đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    },
+    {
+      "code": "IT3-Doctor-Service",
+      "name": "Hệ thống IT3-Doctor-Service",
+      "url": "http://doctor-service/v2/api-docs",
+      "method": "GET",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 60,
+      "messageError": "@vietdangtrung90 kiểm tra lại IT3-Doctor-Service đi",
+      "warningType": 1,
+      "notifySuccess": 0
+    }
+  ],
+  "telegram": {
+    "token": "5819095696:AAFfa9UQPPm7EvsuvOA9qehQtE3L28fo_7I",
+    "chatId": "-614987830",
+    "description": "Tên group telegram là: IT.EHEALTH.Mobile-DevOps"
+  },
+  "createdAt": 1671100206,
+  "updateAt": 1672741372,
+  "createUser": "ADMIN",
+  "updateUser": "admin"
+},{
+  "_id": {
+    "$oid": "63b3fac2bff5ccd8f7625597"
+  },
+  "code": "Test thử xem sao",
+  "name": "LongLV test",
+  "description": "xoá thoải mái",
+  "status": 0,
+  "services": [
+    {
+      "code": "mã 1",
+      "name": "tên 1",
+      "url": "url1",
+      "method": "gét",
+      "httpCode": 200,
+      "description": "",
+      "status": null,
+      "interval": 100,
+      "messageError": "Lỗi thì thôi bỏ qua",
+      "warningType": 1,
+      "notifySuccess": 0
+    }
+  ],
+  "telegram": {
+    "token": "token1",
+    "chatId": "chatid1",
+    "description": "mô tả 1 nhá"
+  },
+  "createdAt": 1672739522,
+  "updateAt": 1672805711,
+  "createUser": "admin",
+  "updateUser": "admin"
+}]

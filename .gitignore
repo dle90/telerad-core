@@ -1,0 +1,51 @@
+# === Go ===
+# Compiled binaries / build output
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/telerad-core
+/telerad-core-module
+bin/
+dist/
+
+# Delve / IDE debug binaries
+__debug_bin
+__debug_bin*
+debug
+*.test
+*.out
+
+# Go workspace / vendor (uncomment vendor/ if you don't vendor deps)
+go.work
+go.work.sum
+# vendor/
+
+# Test & coverage artifacts
+coverage.*
+*.cover
+profile.out
+
+# === Secrets / config ===
+# Local environment files (committed example only, if any: .env.example)
+.env
+.env.*
+!.env.example
+
+# Cryptographic keys (RS256 JWT keys are embedded via .env in deployment)
+*.pem
+*.pub
+*.key
+private_key_*
+public_key_*
+
+# === Logs ===
+*.log
+
+# === Editor / OS ===
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db

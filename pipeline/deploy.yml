@@ -1,0 +1,16 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - go mod download
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+      - go test -coverpkg ./... ./... | { grep -v 'no test files'; true; }
+  build:
+    commands:
+      - docker build -f Dockerfile -t monitor-service .
+      - docker build -t monitor-service:${VERSION} .
+      - docker tag $ECR_NAME:latest $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:latest
+      - aws ecs update-service --service $ECS_SERVICE_NAME --cluster $ECS_CLUSTER_NAME --force-new-deployment

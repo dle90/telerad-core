@@ -1,0 +1,11 @@
+[{
+  "_id": {
+    "$oid": "63b4ff2d49cdb859867dbd06"
+  },
+  "version": 1672806189,
+  "interval": 0,
+  "createdAt": 1672806189,
+  "updateAt": 1672806189,
+  "createUser": "system",
+  "updateUser": "system"
+}]

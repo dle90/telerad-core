@@ -1,0 +1,423 @@
+{
+	"info": {
+		"_postman_id": "cb2163f3-e791-4123-982c-ae5c2438f361",
+		"name": "Kurio",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12626858"
+	},
+	"item": [
+		{
+			"name": "auth-service",
+			"item": [
+				{
+					"name": "create-register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\":\"0837040290\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/create-register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"create-register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "confirm-register-otp",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\":\"0837040290\",\r\n    \"otp\":\"389944\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/confirm-register-otp",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"confirm-register-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\":\"0837040290\",\r\n    \"otp\":\"389944\",\r\n    \"lastName\":\"Đặng\",\r\n    \"firstName\":\"Việt\",\r\n    \"email\":\"phongthan0402@gmail.com\",\r\n    \"password\":\"Vnpt@123456\",\r\n    \"fatherName\":\"fatherName\",\r\n    \"motherName\":\"motherName\",\r\n    \"fatherEmail\":\"phongthan0402@gmail.com\",\r\n    \"motherEmail\":\"\",\r\n    \"fatherPhone\":\"fatherPhone\",\r\n    \"motherPhone\":\"motherPhone\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-validate-email",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"phongthan0402@gmail.com\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/create-validate-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"create-validate-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "validate-email",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"phongthan0402@gmail.com\",\r\n    \"otp\":\"481824\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/validate-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"validate-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-reset-password-phone",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\":\"0123456789\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/create-reset-password-phone",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"create-reset-password-phone"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset-password-phone",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone\":\"0123456789\",\r\n    \"otp\":\"035190\",\r\n    \"newPassword\":\"Vnpt@1234567\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/reset-password-phone",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"reset-password-phone"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-reset-password-email",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"phongthan0402@gmail.com\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/create-reset-password-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"create-reset-password-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset-password-email",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\":\"63c435e464abce22871b81ed\",\r\n    \"otp\":\"615933\",\r\n    \"newPassword\":\"Vnpt@123456\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/account/reset-password-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"account",
+								"reset-password-email"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();\r",
+									"const token = response.access_token;\r",
+									"pm.collectionVariables.set(\"token\", token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"userName\":\"phongthan0402@gmail.com\",\r\n \"password\": \"Vnpt@123456\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth-service/api/v1/auth/token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth-service",
+								"api",
+								"v1",
+								"auth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "localhost:8012"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

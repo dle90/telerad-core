@@ -1,0 +1,37 @@
+# Railway deployment build.
+# Self-contained multi-stage build — does NOT depend on the AWS CodeBuild
+# pipeline. The root `Dockerfile` is kept as-is for the existing AWS/ECR flow.
+
+# ---- build stage ----
+FROM golang:1.25-alpine AS builder
+RUN apk add --no-cache git ca-certificates
+WORKDIR /src
+
+# Cache module downloads
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Build the static binary
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /out/main .
+
+# ---- runtime stage ----
+FROM alpine:3.22
+RUN apk add --no-cache ca-certificates tzdata
+WORKDIR /app
+
+COPY --from=builder /out/main ./main
+
+# Real config (incl. the DB connection secret) comes from Railway service
+# variables. .env.railway holds only non-secret fallback config — the
+# secret-bearing .env is deliberately NOT baked into the image. (go-common's
+# GetEnvFromOS Fatals the app if no .env file exists at all, hence this file.)
+COPY --from=builder /src/.env.railway ./.env
+
+# Runtime support files the service reads on startup
+COPY --from=builder /src/public_key_pkcs8.pub ./public_key_pkcs8.pub
+COPY --from=builder /src/private_key_pkcs8.pem ./private_key_pkcs8.pem
+COPY --from=builder /src/db ./db
+
+EXPOSE 8080
+ENTRYPOINT ["./main"]
