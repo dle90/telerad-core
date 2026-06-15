@@ -32,6 +32,9 @@ profile.out
 .env
 .env.*
 !.env.example
+# .env.railway holds ONLY non-secret fallback config and is baked into the
+# Railway image (Dockerfile.railway COPYs it as /app/.env) — must be committed.
+!.env.railway
 
 # Cryptographic keys (RS256 JWT keys are embedded via .env in deployment)
 *.pem

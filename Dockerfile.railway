@@ -28,10 +28,13 @@ COPY --from=builder /out/main ./main
 # GetEnvFromOS Fatals the app if no .env file exists at all, hence this file.)
 COPY --from=builder /src/.env.railway ./.env
 
-# Runtime support files the service reads on startup
-COPY --from=builder /src/public_key_pkcs8.pub ./public_key_pkcs8.pub
-COPY --from=builder /src/private_key_pkcs8.pem ./private_key_pkcs8.pem
+# Runtime support files the service reads on startup.
+# NOTE: JWT keys are NOT copied — telerad-core loads them from the
+# JWT_PUBLIC_KEY / JWT_PRIVATE_KEY env vars (PEM content via
+# jwtchecker.Init*FromContent), not from files. The .pem/.pub are therefore
+# neither committed nor needed in the image.
 COPY --from=builder /src/db ./db
 
-EXPOSE 8080
+# App listens on PRODUCT_PORT (8101; see .env.railway / Railway vars).
+EXPOSE 8101
 ENTRYPOINT ["./main"]
