@@ -9,13 +9,6 @@ import (
 	"github.com/uptrace/bun"
 )
 
-// Trạng thái ca đọc (cột status).
-const (
-	TeleradReadingOrderStatusPending   = "PENDING"   // mới nhận từ partner, chờ phân công bác sĩ
-	TeleradReadingOrderStatusAssigned  = "ASSIGNED"  // đã gán bác sĩ đọc
-	TeleradReadingOrderStatusCompleted = "COMPLETED" // đã đọc xong
-)
-
 type TeleradReadingOrderEntity struct {
 	bun.BaseModel `bun:"table:telerad.telerad_reading_order"`
 
@@ -55,6 +48,13 @@ type TeleradReadingOrderEntity struct {
 	AssignedTo         *uuid.UUID  `json:"assignedTo" bun:"assigned_to" db:"assigned_to" gorm:"column:assigned_to"`
 	ReadCompletedAt    *time.Time  `json:"readCompletedAt" bun:"read_completed_at" db:"read_completed_at" gorm:"column:read_completed_at"`
 	Status             string      `json:"status" bun:"status,notnull" db:"status" gorm:"column:status;not null"`
+	ApprovedAt         *time.Time  `json:"approvedAt" bun:"approved_at" db:"approved_at" gorm:"column:approved_at"`
+	ApprovedBy         *uuid.UUID  `json:"approvedBy" bun:"approved_by" db:"approved_by" gorm:"column:approved_by"`
+	ResultReturnedAt   *time.Time  `json:"resultReturnedAt" bun:"result_returned_at" db:"result_returned_at" gorm:"column:result_returned_at"`
+	ResultReturnedBy   *uuid.UUID  `json:"resultReturnedBy" bun:"result_returned_by" db:"result_returned_by" gorm:"column:result_returned_by"`
+	ResultReturned     bool        `json:"resultReturned" bun:"result_returned,notnull" db:"result_returned" gorm:"column:result_returned;not null"`
+	BodyParts          []string    `json:"bodyParts" bun:"body_parts,array" db:"body_parts" gorm:"column:body_parts"`
+	ResultInHtml       *string     `json:"resultInHtml" bun:"result_in_html" db:"result_in_html" gorm:"column:result_in_html"`
 }
 
 func (TeleradReadingOrderEntity) TableName() string { return "telerad.telerad_reading_order" }

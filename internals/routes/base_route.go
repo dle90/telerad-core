@@ -39,6 +39,8 @@ func SetupRoutes(baseRoute fiber.Router, basePvtRoute fiber.Router) {
 	TeleradPartnerRoutes()
 	StaffAccountRoutes()
 	TeleradReadingOrderRoutes()
+	ImagingResultTemplateRoutes()
+	ImagingResultSheetTemplateRoutes()
 }
 
 func getRoute(route fiber.Router, collection string) fiber.Router {

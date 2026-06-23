@@ -6,6 +6,7 @@ import (
 
 	"telerad-core-module/internals/constants"
 	"telerad-core-module/internals/entities"
+	fieldValues "telerad-core-module/internals/entities/field-values"
 	"telerad-core-module/internals/repositories"
 	teleradReadingOrderControllerRequests "telerad-core-module/internals/requests/telerad-reading-order-controller_requests"
 
@@ -17,8 +18,8 @@ func FindOneTeleradReadingOrderByUuid(ctx context.Context, tx bun.IDB, id uuid.U
 	return repositories.FindOneByUuid[entities.TeleradReadingOrderEntity](ctx, tx, id)
 }
 
-// InitNewTeleradReadingOrder dựng ca đọc mới từ payload đối tác. status = PENDING,
-// các trường phân công (assigned_*, read_completed_at) để trống.
+// InitNewTeleradReadingOrder dựng ca đọc mới từ payload đối tác. status = UNREAD,
+// các trường đọc/duyệt (assigned_*, read_completed_at, approved_*, result_*) để trống.
 func InitNewTeleradReadingOrder(teleradPartnerUuid uuid.UUID, request teleradReadingOrderControllerRequests.PartnerCreateReadingOrderRequest) entities.TeleradReadingOrderEntity {
 	// Tuổi tính tại thời điểm thực hiện chụp (perform_ended_at).
 	years, months, days := calculateAgeBreakdown(request.DateOfBirth.Time(), request.PerformEndedAt)
@@ -51,7 +52,8 @@ func InitNewTeleradReadingOrder(teleradPartnerUuid uuid.UUID, request teleradRea
 		PerformEndedAt:     request.PerformEndedAt,
 		ClinicalDiagnosis:  request.ClinicalDiagnosis,
 		Icd:                request.Icd,
-		Status:             entities.TeleradReadingOrderStatusPending,
+		BodyParts:          request.BodyParts,
+		Status:             fieldValues.TELERAD_READING_ORDER_STATUS_UNREAD.Value,
 	}
 }
 

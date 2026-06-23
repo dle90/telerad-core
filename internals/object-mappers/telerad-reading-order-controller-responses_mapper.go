@@ -60,6 +60,49 @@ func ToPartnerCreateReadingOrderResponse(readingOrder entities.TeleradReadingOrd
 	}
 }
 
+// ToStaffGetReadingOrderDetailResponse map entity ca đọc + tên đối tác + tên bác sĩ
+// đọc (đã resolve ở service) sang response chi tiết cho tab chi tiết.
+func ToStaffGetReadingOrderDetailResponse(
+	ro entities.TeleradReadingOrderEntity,
+	partnerName string,
+	assignedToName *string,
+	assignedToMe bool,
+) teleradReadingOrderControllerResponses.StaffGetReadingOrderDetailResponse {
+	return teleradReadingOrderControllerResponses.StaffGetReadingOrderDetailResponse{
+		Uuid:               ro.Uuid,
+		TeleradPartnerUuid: ro.TeleradPartnerUuid,
+		PartnerName:        partnerName,
+		OrderCode:          ro.OrderCode,
+		OrderItemCode:      ro.OrderItemCode,
+		StudyInstanceUid:   ro.StudyInstanceUid,
+		PatientCode:        ro.PatientCode,
+		FullName:           ro.FullName,
+		DateOfBirth:        ro.DateOfBirth,
+		Gender:             ro.Gender,
+		YearsOld:           ro.YearsOld,
+		MonthsOld:          ro.MonthsOld,
+		DaysOld:            ro.DaysOld,
+		Phone:              ro.Phone,
+		Email:              ro.Email,
+		FullAddress:        ro.FullAddress,
+		ServiceName:        ro.ServiceName,
+		Modality:           ro.Modality,
+		ModalityName:       ro.ModalityName,
+		Note:               ro.Note,
+		PerformEndedAt:     ro.PerformEndedAt,
+		ClinicalDiagnosis:  ro.ClinicalDiagnosis,
+		Icd:                ro.Icd,
+		BodyParts:          ro.BodyParts,
+		AssignedTo:         ro.AssignedTo,
+		AssignedToName:     assignedToName,
+		AssignedToMe:       assignedToMe,
+		ReadCompletedAt:    ro.ReadCompletedAt,
+		Status:             ro.Status,
+		ResultReturned:     ro.ResultReturned,
+		ResultInHtml:       ro.ResultInHtml,
+	}
+}
+
 func ToStaffGetListReadingOrderSlice(
 	rows []databaseQueryModels.ReadingOrderListRow,
 ) []teleradReadingOrderControllerResponses.StaffGetListReadingOrderResponse {

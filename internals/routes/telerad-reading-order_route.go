@@ -15,6 +15,13 @@ func TeleradReadingOrderRoutes() {
 	// nhân viên (bác sĩ đọc) — màn "Đọc ca"
 	staffCollection := getRoute(v1, staff).Group(readingOrder, secure.CheckAuthorization())
 	staffCollection.Get("", controllers.StaffGetPaginatedReadingOrders)
+	// chi tiết 1 ca đọc (tab chi tiết)
+	staffCollection.Get("/:objectId", controllers.StaffGetReadingOrderDetail)
+	// nhận ca (UNREAD -> READING) / hủy khóa (READING của mình -> UNREAD)
+	staffCollection.Post("/:objectId/actions/receive", controllers.StaffReceiveReadingOrder)
+	staffCollection.Post("/:objectId/actions/cancel-lock", controllers.StaffCancelReadingOrderLock)
+	// lưu kết quả đọc (result_in_html)
+	staffCollection.Post("/:objectId/actions/save-result", controllers.StaffSaveReadingOrderResult)
 	// sinh URL mở PACS viewer cho 1 ca đọc (kèm view-token trong URL hash)
 	staffCollection.Get("/:objectId/generate-pacs-viewer-url", controllers.StaffGenerateImagingStudyViewerUrl)
 }

@@ -9,7 +9,7 @@ import (
 type StaffUpdateStaffAccountRequest struct {
 	Code                  string      `json:"code" validate:"required"`
 	FullName              string      `json:"fullName" validate:"required"`
-	Gender                string      `json:"gender" validate:"required"`
+	Gender                string      `json:"gender" validate:"required,oneof=MALE FEMALE"`
 	DateOfBirth           *types.Date `json:"dateOfBirth"`
 	CitizenIdentityNumber *string     `json:"citizenIdentityNumber"`
 	Phone                 *string     `json:"phone"`
