@@ -23,3 +23,15 @@ const TELERAD_E102_006 string = "Không thể thao tác trên tài khoản quả
 // Nhóm lỗi TELERAD E103: ca đọc (telerad_reading_order)
 const TELERAD_E103_001 string = "Ca đọc không tồn tại"
 const TELERAD_E103_002 string = "Bạn không có quyền đọc ca này"
+const TELERAD_E103_003 string = "Ca đọc không ở trạng thái chưa đọc"
+const TELERAD_E103_004 string = "Ca đọc không ở trạng thái đang đọc của bạn"
+const TELERAD_E103_005 string = "Bạn đang đọc ca %s của bệnh nhân %s" // format: order_item_code, full_name
+
+// Nhóm lỗi TELERAD E104: mẫu kết quả (imaging_result_template)
+const TELERAD_E104_001 string = "Mẫu kết quả không tồn tại"
+const TELERAD_E104_002 string = "Loại chụp không hợp lệ"
+const TELERAD_E104_003 string = "Bộ phận chụp không hợp lệ"
+
+// Nhóm lỗi TELERAD E105: phiếu kết quả (imaging_result_sheet_template)
+const TELERAD_E105_001 string = "Phiếu kết quả không tồn tại"
+const TELERAD_E105_002 string = "Cơ sở y tế này đã có phiếu kết quả"

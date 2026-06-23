@@ -67,6 +67,12 @@ func StaffGetPaginatedReadingOrders(c *fiber.Ctx) error {
 	patientName := utils.GetStringFromRequestParam(c, "patientName")
 	patientCode := utils.GetStringFromRequestParam(c, "patientCode")
 	phone := utils.GetStringFromRequestParam(c, "phone")
+	status := utils.GetStringFromRequestParam(c, "status")
+
+	resultReturned, err := utils.GetBoolFromRequestParam(c, "resultReturned", true)
+	if err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
 
 	performEndedFrom, err := utils.GetTimeFromRequestParam(c, "performEndedFrom", true)
 	if err != nil {
@@ -85,7 +91,89 @@ func StaffGetPaginatedReadingOrders(c *fiber.Ctx) error {
 		selectedPartnerUuid, selectedModality,
 		performEndedFrom, performEndedTo,
 		patientName, patientCode, phone,
+		status, resultReturned,
 	)
+	if systemErr != nil {
+		return _error.HandleSystemError(c, systemErr)
+	}
+
+	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
+}
+
+// StaffGetReadingOrderDetail — chi tiết 1 ca đọc cho tab chi tiết màn "Đọc ca".
+func StaffGetReadingOrderDetail(c *fiber.Ctx) error {
+	logger.Info("StaffGetReadingOrderDetail starting....")
+
+	readingOrderUuid, err := utils.GetUuidFromRequestPath(c, "objectId")
+	if err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
+	userUuid := secure.GetUserUuidFromJwt(c)
+
+	result, systemErr := services.StaffGetReadingOrderDetail(c.Context(), userUuid, readingOrderUuid)
+	if systemErr != nil {
+		return _error.HandleSystemError(c, systemErr)
+	}
+
+	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
+}
+
+// StaffReceiveReadingOrder — "Nhận ca": user nhận 1 ca CHƯA ĐỌC để đọc.
+func StaffReceiveReadingOrder(c *fiber.Ctx) error {
+	logger.Info("StaffReceiveReadingOrder starting....")
+
+	readingOrderUuid, err := utils.GetUuidFromRequestPath(c, "objectId")
+	if err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
+	userUuid := secure.GetUserUuidFromJwt(c)
+
+	result, systemErr := services.StaffReceiveReadingOrder(c.Context(), userUuid, readingOrderUuid)
+	if systemErr != nil {
+		return _error.HandleSystemError(c, systemErr)
+	}
+
+	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
+}
+
+// StaffCancelReadingOrderLock — "Hủy khóa": nhả ca đang đọc về CHƯA ĐỌC.
+func StaffCancelReadingOrderLock(c *fiber.Ctx) error {
+	logger.Info("StaffCancelReadingOrderLock starting....")
+
+	readingOrderUuid, err := utils.GetUuidFromRequestPath(c, "objectId")
+	if err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
+	userUuid := secure.GetUserUuidFromJwt(c)
+
+	result, systemErr := services.StaffCancelReadingOrderLock(c.Context(), userUuid, readingOrderUuid)
+	if systemErr != nil {
+		return _error.HandleSystemError(c, systemErr)
+	}
+
+	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
+}
+
+// StaffSaveReadingOrderResult — "Lưu kết quả": ghi result_in_html cho ca đang đọc.
+func StaffSaveReadingOrderResult(c *fiber.Ctx) error {
+	logger.Info("StaffSaveReadingOrderResult starting....")
+
+	readingOrderUuid, err := utils.GetUuidFromRequestPath(c, "objectId")
+	if err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
+	var request teleradReadingOrderControllerRequests.StaffSaveReadingOrderResultRequest
+	if err := commonUtils.RequestBodyParser(c, &request); err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
+	userUuid := secure.GetUserUuidFromJwt(c)
+
+	result, systemErr := services.StaffSaveReadingOrderResult(c.Context(), userUuid, readingOrderUuid, request.ResultInHtml)
 	if systemErr != nil {
 		return _error.HandleSystemError(c, systemErr)
 	}

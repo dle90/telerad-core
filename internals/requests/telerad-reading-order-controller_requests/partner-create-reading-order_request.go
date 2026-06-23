@@ -40,4 +40,7 @@ type PartnerCreateReadingOrderRequest struct {
 	PerformEndedAt    time.Time `json:"performEndedAt" validate:"required"`
 	ClinicalDiagnosis *string   `json:"clinicalDiagnosis"`
 	Icd               []string  `json:"icd" validate:"omitempty,dive,required"`
+
+	// bộ phận chụp (PACS_BODY_PART); HIS hiện chưa gửi -> có thể null
+	BodyParts []string `json:"bodyParts" validate:"omitempty,dive,required"`
 }

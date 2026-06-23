@@ -23,6 +23,8 @@ type ReadingOrderListFilter struct {
 	PatientName      string      // tên bệnh nhân (ILIKE)
 	PatientCode      string      // mã bệnh nhân (ILIKE)
 	Phone            string      // số điện thoại (ILIKE)
+	Status           string      // tình trạng ca (status) — "" = tất cả
+	ResultReturned   *bool       // đã trả kết quả chưa — nil = tất cả
 }
 
 // FindPaginatedReadingOrders trả danh sách ca đọc (kèm tên đối tác + tên bác sĩ
@@ -95,6 +97,14 @@ func FindPaginatedReadingOrders(
 		query = query.Where("ro.phone = ?", filter.Phone)
 	}
 
+	// Lọc theo tình trạng ca + trạng thái trả kết quả.
+	if filter.Status != "" {
+		query = query.Where("ro.status = ?", filter.Status)
+	}
+	if filter.ResultReturned != nil {
+		query = query.Where("ro.result_returned = ?", *filter.ResultReturned)
+	}
+
 	query = query.OrderExpr("ro.perform_ended_at DESC, ro.uuid ASC")
 
 	totalCount, err := findPaginated(ctx, query, page, pageSize)
@@ -114,6 +124,20 @@ func FindOneReadingOrderByPartnerAndOrderItemId(ctx context.Context, tx bun.IDB,
 		Model(&record).
 		Where("?TableAlias.telerad_partner_uuid = ?", teleradPartnerUuid).
 		Where("?TableAlias.order_item_id = ?", orderItemId)
+
+	return findOne(ctx, query, &record)
+}
+
+// FindOneReadingOrderByAssigneeAndStatus tìm 1 ca đọc đang gán cho 1 bác sĩ ở 1
+// trạng thái (vd kiểm tra user có ca nào đang READING không). Trả nil nếu không có.
+func FindOneReadingOrderByAssigneeAndStatus(ctx context.Context, tx bun.IDB, assigneeUuid uuid.UUID, status string) (*entities.TeleradReadingOrderEntity, error) {
+	var record entities.TeleradReadingOrderEntity
+
+	query := tx.NewSelect().
+		Model(&record).
+		Where("?TableAlias.assigned_to = ?", assigneeUuid).
+		Where("?TableAlias.status = ?", status).
+		Limit(1)
 
 	return findOne(ctx, query, &record)
 }

@@ -1,8 +1,8 @@
 package errors
 
 import (
-	"telerad-core-module/internals/responses"
 	"net/http"
+	"telerad-core-module/internals/responses"
 
 	"github.com/gofiber/fiber/v2"
 )
