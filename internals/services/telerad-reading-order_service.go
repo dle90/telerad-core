@@ -23,6 +23,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
+	"golang.org/x/net/html"
 )
 
 // PartnerCreateReadingOrder nhận 1 ca đọc do đối tác đẩy sang. teleradPartnerUuid lấy
@@ -256,12 +257,54 @@ func StaffSaveReadingOrderResult(
 	}
 
 	readingOrder.ResultInHtml = &resultInHtml
+	resultInText := htmlResultToPlainText(resultInHtml)
+	readingOrder.ResultInText = &resultInText
 
 	if err := baseServices.UpdateWholeTeleradReadingOrderRecord(ctx, bunNoTransaction, requesterUuid, readingOrder); err != nil {
 		return nil, _error.New(err)
 	}
 
 	return buildReadingOrderDetailResponse(ctx, requesterUuid, readingOrder)
+}
+
+// htmlResultToPlainText converts result HTML to plain text for result_in_text.
+// Uses the standard HTML parser (golang.org/x/net/html), robust on malformed HTML:
+//   - <br> becomes a newline character
+//   - all other tags are dropped (no bold/italic/center/font-size...); <script>/<style> content dropped
+//   - tokenizer decodes entities (&nbsp; &amp;...); existing newline characters are kept
+func htmlResultToPlainText(h string) string {
+	z := html.NewTokenizer(strings.NewReader(h))
+	var b strings.Builder
+	skip := 0 // inside <script>/<style>: drop inner text
+	for {
+		switch z.Next() {
+		case html.ErrorToken: // end of input (or error)
+			out := strings.ReplaceAll(b.String(), "\u00a0", " ") // nbsp -> space
+			out = strings.ReplaceAll(out, "\r\n", "\n")
+			return strings.TrimSpace(out)
+		case html.TextToken:
+			if skip == 0 {
+				b.Write(z.Text()) // Text() already decodes entities
+			}
+		case html.StartTagToken:
+			switch name, _ := z.TagName(); string(name) {
+			case "br":
+				b.WriteByte('\n')
+			case "script", "style":
+				skip++
+			}
+		case html.SelfClosingTagToken:
+			if name, _ := z.TagName(); string(name) == "br" {
+				b.WriteByte('\n')
+			}
+		case html.EndTagToken:
+			if name, _ := z.TagName(); string(name) == "script" || string(name) == "style" {
+				if skip > 0 {
+					skip--
+				}
+			}
+		}
+	}
 }
 
 // StaffEndReadingAndApprove — "Kết thúc & Duyệt": chốt ca đang đọc thành ĐÃ DUYỆT.
@@ -301,18 +344,27 @@ func StaffEndReadingAndApprove(
 	return buildReadingOrderDetailResponse(ctx, requesterUuid, readingOrder)
 }
 
-// StaffGetReadingOrderResultSheet trả mẫu phiếu kết quả của CSYT (telerad_partner) ca
-// đọc, dùng để dựng bản in. Lỗi nếu CSYT chưa cấu hình phiếu.
-func StaffGetReadingOrderResultSheet(
+// PublicGetReadingOrderResultSheet — phiếu kết quả CÔNG KHAI (HIS / bệnh nhân xem qua link).
+// KHÔNG kiểm tra quyền: uuid của ca đóng vai trò "khóa" truy cập. Lỗi nếu ca / phiếu không tồn tại.
+func PublicGetReadingOrderResultSheet(
 	ctx context.Context,
-	requesterUuid uuid.UUID,
 	readingOrderUuid uuid.UUID,
-) (*teleradReadingOrderControllerResponses.StaffGetReadingOrderResultSheetResponse, *_error.SystemError) {
-	readingOrder, systemErr := loadReadingOrderForStaff(ctx, requesterUuid, readingOrderUuid)
-	if systemErr != nil {
-		return nil, systemErr
+) (*teleradReadingOrderControllerResponses.PublicGetReadingOrderResultSheetResponse, *_error.SystemError) {
+	readingOrder, err := baseServices.FindOneTeleradReadingOrderByUuid(ctx, bunNoTransaction, readingOrderUuid)
+	if err != nil {
+		return nil, _error.New(err)
+	} else if readingOrder == nil {
+		return nil, _error.NewErrorByString(_errorMessages.TELERAD_E103_001)
 	}
+	return buildReadingOrderResultSheetResponse(ctx, readingOrder)
+}
 
+// buildReadingOrderResultSheetResponse dựng phiếu + dữ liệu in từ 1 ca đã load (dùng chung cho
+// staff & public). Lỗi nếu CSYT chưa cấu hình phiếu.
+func buildReadingOrderResultSheetResponse(
+	ctx context.Context,
+	readingOrder *entities.TeleradReadingOrderEntity,
+) (*teleradReadingOrderControllerResponses.PublicGetReadingOrderResultSheetResponse, *_error.SystemError) {
 	sheet, err := repositories.FindOneImagingResultSheetTemplateByPartner(ctx, bunNoTransaction, readingOrder.TeleradPartnerUuid, nil)
 	if err != nil {
 		return nil, _error.New(err)
@@ -330,7 +382,7 @@ func StaffGetReadingOrderResultSheet(
 		}
 	}
 
-	response := objectMappers.ToStaffGetReadingOrderResultSheetResponse(
+	response := objectMappers.ToPublicGetReadingOrderResultSheetResponse(
 		*readingOrder, sheet.HtmlContent, sheet.ResultFontSize, sheet.ResultLineSpacing, readBy,
 	)
 	return &response, nil

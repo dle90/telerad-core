@@ -108,16 +108,16 @@ func ToStaffGetReadingOrderDetailResponse(
 	}
 }
 
-// ToStaffGetReadingOrderResultSheetResponse lắp dữ liệu in cho mẫu phiếu kết quả: key của
+// ToPublicGetReadingOrderResultSheetResponse lắp dữ liệu in cho mẫu phiếu kết quả: key của
 // data = ĐÚNG tên token trên mẫu, đã format hiển thị sẵn (giới tính, ngày, năm sinh, cỡ chữ)
 // để frontend chỉ cần fillTokens. readBy (tên bác sĩ đọc) đã resolve ở service.
-func ToStaffGetReadingOrderResultSheetResponse(
+func ToPublicGetReadingOrderResultSheetResponse(
 	ro entities.TeleradReadingOrderEntity,
 	htmlContent string,
 	resultFontSize int16,
 	resultLineSpacing float64,
 	readBy string,
-) teleradReadingOrderControllerResponses.StaffGetReadingOrderResultSheetResponse {
+) teleradReadingOrderControllerResponses.PublicGetReadingOrderResultSheetResponse {
 	// Ngày trên phiếu: nếu ca chưa đọc xong (ReadCompletedAt null) -> lấy thời gian hiện tại (ngày in).
 	readCompletedAt := ro.ReadCompletedAt
 	if readCompletedAt == nil || readCompletedAt.IsZero() {
@@ -125,7 +125,7 @@ func ToStaffGetReadingOrderResultSheetResponse(
 		readCompletedAt = &now
 	}
 
-	return teleradReadingOrderControllerResponses.StaffGetReadingOrderResultSheetResponse{
+	return teleradReadingOrderControllerResponses.PublicGetReadingOrderResultSheetResponse{
 		HtmlContent:       htmlContent,
 		ResultFontSize:    resultFontSize,
 		ResultLineSpacing: resultLineSpacing,

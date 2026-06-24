@@ -55,6 +55,7 @@ type TeleradReadingOrderEntity struct {
 	ResultReturned     bool        `json:"resultReturned" bun:"result_returned,notnull" db:"result_returned" gorm:"column:result_returned;not null"`
 	BodyParts          []string    `json:"bodyParts" bun:"body_parts,array" db:"body_parts" gorm:"column:body_parts"`
 	ResultInHtml       *string     `json:"resultInHtml" bun:"result_in_html" db:"result_in_html" gorm:"column:result_in_html"`
+	ResultInText       *string     `json:"resultInText" bun:"result_in_text" db:"result_in_text" gorm:"column:result_in_text"`
 }
 
 func (TeleradReadingOrderEntity) TableName() string { return "telerad.telerad_reading_order" }

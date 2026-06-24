@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"telerad-core-module/internals/entities"
+	fieldValues "telerad-core-module/internals/entities/field-values"
 	databaseQueryModels "telerad-core-module/internals/models/database-query_models"
 
 	"github.com/google/uuid"
@@ -110,7 +111,9 @@ func FindPaginatedReadingOrders(
 		query = query.Where("ro.result_returned = ?", *filter.ResultReturned)
 	}
 
-	query = query.OrderExpr("ro.perform_ended_at DESC, ro.uuid ASC")
+	// Ưu tiên ca CHƯA ĐỌC lên đầu, sau đó ngày chụp mới nhất trước.
+	query = query.OrderExpr("(ro.status = ?) DESC, ro.perform_ended_at DESC, ro.uuid ASC",
+		fieldValues.TELERAD_READING_ORDER_STATUS_UNREAD.Value)
 
 	totalCount, err := findPaginated(ctx, query, page, pageSize)
 	if err != nil {
