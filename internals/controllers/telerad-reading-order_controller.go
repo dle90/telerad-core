@@ -181,6 +181,44 @@ func StaffSaveReadingOrderResult(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
 }
 
+// StaffEndReadingAndApprove — "Kết thúc & Duyệt": chốt ca đang đọc thành ĐÃ DUYỆT.
+func StaffEndReadingAndApprove(c *fiber.Ctx) error {
+	logger.Info("StaffEndReadingAndApprove starting....")
+
+	readingOrderUuid, err := utils.GetUuidFromRequestPath(c, "objectId")
+	if err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
+	userUuid := secure.GetUserUuidFromJwt(c)
+
+	result, systemErr := services.StaffEndReadingAndApprove(c.Context(), userUuid, readingOrderUuid)
+	if systemErr != nil {
+		return _error.HandleSystemError(c, systemErr)
+	}
+
+	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
+}
+
+// StaffGetReadingOrderResultSheet — mẫu phiếu kết quả của CSYT ca đọc (để in).
+func StaffGetReadingOrderResultSheet(c *fiber.Ctx) error {
+	logger.Info("StaffGetReadingOrderResultSheet starting....")
+
+	readingOrderUuid, err := utils.GetUuidFromRequestPath(c, "objectId")
+	if err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
+	userUuid := secure.GetUserUuidFromJwt(c)
+
+	result, systemErr := services.StaffGetReadingOrderResultSheet(c.Context(), userUuid, readingOrderUuid)
+	if systemErr != nil {
+		return _error.HandleSystemError(c, systemErr)
+	}
+
+	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
+}
+
 // StaffGenerateImagingStudyViewerUrl — sinh URL mở PACS viewer cho 1 ca đọc (kèm
 // view-token trong URL hash). Chỉ cho mở ca thuộc quyền của user (service kiểm tra).
 func StaffGenerateImagingStudyViewerUrl(c *fiber.Ctx) error {

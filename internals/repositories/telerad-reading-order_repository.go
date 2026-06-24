@@ -24,6 +24,7 @@ type ReadingOrderListFilter struct {
 	PatientCode      string      // mã bệnh nhân (ILIKE)
 	Phone            string      // số điện thoại (ILIKE)
 	Status           string      // tình trạng ca (status) — "" = tất cả
+	AssignedTo       *uuid.UUID  // lọc theo bác sĩ đang nhận (assigned_to) — nil = không lọc
 	ResultReturned   *bool       // đã trả kết quả chưa — nil = tất cả
 }
 
@@ -57,6 +58,7 @@ func FindPaginatedReadingOrders(
 		ColumnExpr("ro.read_completed_at").
 		ColumnExpr("ro.assigned_to").
 		ColumnExpr("ro.status").
+		ColumnExpr("ro.result_returned").
 		ColumnExpr("tp.name AS partner_name").
 		ColumnExpr("sa.full_name AS assigned_to_name").
 		Join("JOIN telerad.telerad_partner AS tp ON tp.uuid = ro.telerad_partner_uuid").
@@ -97,9 +99,12 @@ func FindPaginatedReadingOrders(
 		query = query.Where("ro.phone = ?", filter.Phone)
 	}
 
-	// Lọc theo tình trạng ca + trạng thái trả kết quả.
+	// Lọc theo tình trạng ca + bác sĩ đang nhận + trạng thái trả kết quả.
 	if filter.Status != "" {
 		query = query.Where("ro.status = ?", filter.Status)
+	}
+	if filter.AssignedTo != nil {
+		query = query.Where("ro.assigned_to = ?", *filter.AssignedTo)
 	}
 	if filter.ResultReturned != nil {
 		query = query.Where("ro.result_returned = ?", *filter.ResultReturned)

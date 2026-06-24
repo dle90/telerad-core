@@ -27,6 +27,7 @@ type ReadingOrderListRow struct {
 	ReadCompletedAt    *time.Time `bun:"read_completed_at"`
 	AssignedTo         *uuid.UUID `bun:"assigned_to"`
 	Status             string     `bun:"status"`
+	ResultReturned     bool       `bun:"result_returned"`
 
 	// Joined fields.
 	PartnerName    string  `bun:"partner_name"`

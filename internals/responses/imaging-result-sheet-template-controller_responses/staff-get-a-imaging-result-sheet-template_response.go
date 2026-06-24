@@ -14,6 +14,8 @@ type StaffGetAImagingResultSheetTemplateResponse struct {
 	UpdatedBy          *uuid.UUID `json:"updatedBy"`
 	TeleradPartnerUuid uuid.UUID  `json:"teleradPartnerUuid"`
 	HtmlContent        string     `json:"htmlContent"`
+	ResultFontSize     int16      `json:"resultFontSize"`
+	ResultLineSpacing  float64    `json:"resultLineSpacing"`
 	IsActive           bool       `json:"isActive"`
 	//
 	TeleradPartnerCode *string `json:"teleradPartnerCode"`

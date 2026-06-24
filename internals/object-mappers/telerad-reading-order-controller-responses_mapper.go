@@ -1,12 +1,17 @@
 package objectMappers
 
 import (
+	"fmt"
 	"slices"
+	"strconv"
+	"strings"
+	"time"
 
 	"telerad-core-module/internals/constants"
 	"telerad-core-module/internals/entities"
 	databaseQueryModels "telerad-core-module/internals/models/database-query_models"
 	teleradReadingOrderControllerResponses "telerad-core-module/internals/responses/telerad-reading-order-controller_responses"
+	"telerad-core-module/internals/types"
 )
 
 // ToReadingOrderPartnerGroupSlice gom đối tác thành cây "loại chụp → đối tác" cho
@@ -103,6 +108,79 @@ func ToStaffGetReadingOrderDetailResponse(
 	}
 }
 
+// ToStaffGetReadingOrderResultSheetResponse lắp dữ liệu in cho mẫu phiếu kết quả: key của
+// data = ĐÚNG tên token trên mẫu, đã format hiển thị sẵn (giới tính, ngày, năm sinh, cỡ chữ)
+// để frontend chỉ cần fillTokens. readBy (tên bác sĩ đọc) đã resolve ở service.
+func ToStaffGetReadingOrderResultSheetResponse(
+	ro entities.TeleradReadingOrderEntity,
+	htmlContent string,
+	resultFontSize int16,
+	resultLineSpacing float64,
+	readBy string,
+) teleradReadingOrderControllerResponses.StaffGetReadingOrderResultSheetResponse {
+	// Ngày trên phiếu: nếu ca chưa đọc xong (ReadCompletedAt null) -> lấy thời gian hiện tại (ngày in).
+	readCompletedAt := ro.ReadCompletedAt
+	if readCompletedAt == nil || readCompletedAt.IsZero() {
+		now := time.Now()
+		readCompletedAt = &now
+	}
+
+	return teleradReadingOrderControllerResponses.StaffGetReadingOrderResultSheetResponse{
+		HtmlContent:       htmlContent,
+		ResultFontSize:    resultFontSize,
+		ResultLineSpacing: resultLineSpacing,
+		Data: teleradReadingOrderControllerResponses.ReadingOrderPrintData{
+			PatientName:       ro.FullName,
+			PatientBirthYear:  printBirthYear(ro.DateOfBirth),
+			PatientGender:     printGenderLabel(ro.Gender),
+			IndicationPlace:   "",
+			ServiceName:       ro.ServiceName,
+			ClinicalDiagnosis: derefString(ro.ClinicalDiagnosis),
+			ResultContent:     derefString(ro.ResultInHtml),
+			ReadCompletedAt:   printVietnameseDate(readCompletedAt),
+			ReadBy:            readBy,
+			LogoUrl:           "",
+		},
+	}
+}
+
+func derefString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+// printGenderLabel chuẩn hoá giới tính sang "Nam"/"Nữ" để in.
+func printGenderLabel(g *string) string {
+	if g == nil {
+		return ""
+	}
+	switch strings.ToUpper(strings.TrimSpace(*g)) {
+	case "MALE", "M", "NAM":
+		return "Nam"
+	case "FEMALE", "F", "NU", "NỮ":
+		return "Nữ"
+	default:
+		return *g
+	}
+}
+
+func printBirthYear(d *types.Date) string {
+	if d == nil || d.IsZero() {
+		return ""
+	}
+	return strconv.Itoa(d.Time().Year())
+}
+
+// printVietnameseDate -> "24 tháng 06 năm 2026" (rỗng nếu chưa có ngày).
+func printVietnameseDate(t *time.Time) string {
+	if t == nil || t.IsZero() {
+		return ""
+	}
+	return fmt.Sprintf("%d tháng %02d năm %d", t.Day(), int(t.Month()), t.Year())
+}
+
 func ToStaffGetListReadingOrderSlice(
 	rows []databaseQueryModels.ReadingOrderListRow,
 ) []teleradReadingOrderControllerResponses.StaffGetListReadingOrderResponse {
@@ -129,6 +207,7 @@ func ToStaffGetListReadingOrderSlice(
 			AssignedTo:         row.AssignedTo,
 			AssignedToName:     row.AssignedToName,
 			Status:             row.Status,
+			ResultReturned:     row.ResultReturned,
 		})
 	}
 

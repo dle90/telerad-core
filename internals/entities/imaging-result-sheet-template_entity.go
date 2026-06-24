@@ -19,6 +19,8 @@ type ImagingResultSheetTemplateEntity struct {
 	UpdatedBy          *uuid.UUID `json:"updatedBy" bun:"updated_by" db:"updated_by" gorm:"column:updated_by"`
 	TeleradPartnerUuid uuid.UUID  `json:"teleradPartnerUuid" bun:"telerad_partner_uuid,notnull" db:"telerad_partner_uuid" gorm:"column:telerad_partner_uuid;not null"`
 	HtmlContent        string     `json:"htmlContent" bun:"html_content,notnull" db:"html_content" gorm:"column:html_content;not null"`
+	ResultFontSize     int16      `json:"resultFontSize" bun:"result_font_size,notnull" db:"result_font_size" gorm:"column:result_font_size;not null"`
+	ResultLineSpacing  float64    `json:"resultLineSpacing" bun:"result_line_spacing,notnull" db:"result_line_spacing" gorm:"column:result_line_spacing;not null"`
 	IsActive           bool       `json:"isActive" bun:"is_active,notnull" db:"is_active" gorm:"column:is_active;not null"`
 
 	TeleradPartner *TeleradPartnerEntity `json:"-" bun:"rel:belongs-to,join:telerad_partner_uuid=uuid" gorm:"foreignKey:TeleradPartnerUuid;references:Uuid"`

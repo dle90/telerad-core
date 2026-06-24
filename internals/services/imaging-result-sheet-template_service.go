@@ -61,7 +61,7 @@ func StaffCreateImagingResultSheetTemplate(
 		return nil, _error.NewErrorByString(_errorMessages.TELERAD_E105_002)
 	}
 
-	template := baseServices.InitNewImagingResultSheetTemplate(request.TeleradPartnerUuid, request.HtmlContent)
+	template := baseServices.InitNewImagingResultSheetTemplate(request.TeleradPartnerUuid, request.HtmlContent, request.ResultFontSize, request.ResultLineSpacing)
 	if err := baseServices.CreateNewImagingResultSheetTemplate(ctx, bunNoTransaction, creatorUuid, &template); err != nil {
 		return nil, _error.New(err)
 	}
@@ -86,6 +86,8 @@ func StaffUpdateImagingResultSheetTemplate(
 	}
 
 	template.HtmlContent = request.HtmlContent
+	template.ResultFontSize = request.ResultFontSize
+	template.ResultLineSpacing = request.ResultLineSpacing
 
 	if err := baseServices.UpdateWholeImagingResultSheetTemplateRecord(ctx, bunNoTransaction, updaterUuid, template); err != nil {
 		return nil, _error.New(err)

@@ -108,8 +108,6 @@ func StaffUpdateImagingResultTemplate(
 	template.Name = request.Name
 	template.BodyParts = request.BodyParts
 	template.HtmlContent = request.HtmlContent
-	template.FontSize = request.FontSize
-	template.LineSpacing = request.LineSpacing
 	template.DisplayOrder = request.DisplayOrder
 
 	if err := baseServices.UpdateWholeImagingResultTemplateRecord(ctx, bunNoTransaction, updaterUuid, template); err != nil {

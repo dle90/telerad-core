@@ -22,8 +22,6 @@ type ImagingResultTemplateEntity struct {
 	Name         string     `json:"name" bun:"name,notnull" db:"name" gorm:"column:name;not null"`
 	BodyParts    []string   `json:"bodyParts" bun:"body_parts,array" db:"body_parts" gorm:"column:body_parts"`
 	HtmlContent  string     `json:"htmlContent" bun:"html_content,notnull" db:"html_content" gorm:"column:html_content;not null"`
-	FontSize     int        `json:"fontSize" bun:"font_size,notnull" db:"font_size" gorm:"column:font_size;not null"`
-	LineSpacing  float64    `json:"lineSpacing" bun:"line_spacing,notnull" db:"line_spacing" gorm:"column:line_spacing;not null"`
 	DisplayOrder *int16     `json:"displayOrder" bun:"display_order" db:"display_order" gorm:"column:display_order"`
 	IsActive     bool       `json:"isActive" bun:"is_active,notnull" db:"is_active" gorm:"column:is_active;not null"`
 }
