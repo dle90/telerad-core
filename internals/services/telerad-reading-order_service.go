@@ -85,6 +85,16 @@ func StaffGetPaginatedReadingOrders(
 		return nil, systemErr
 	}
 
+	// "Đang nhận bởi tôi" là pseudo-status của filter (không phải status thật): ca READING
+	// do CHÍNH user đăng nhập đang nhận -> dịch sang status=READING + assigned_to=user.
+	const readingStatusOngoingByMe = "READING_ONGOING_BY_ME"
+	statusFilter := strings.TrimSpace(status)
+	var assignedToFilter *uuid.UUID
+	if statusFilter == readingStatusOngoingByMe {
+		statusFilter = fieldValues.TELERAD_READING_ORDER_STATUS_READING.Value
+		assignedToFilter = &userUuid
+	}
+
 	filter := repositories.ReadingOrderListFilter{
 		IsAdmin:          isAdmin,
 		PartnerUuids:     staff.TeleradPartnerUuids,
@@ -94,7 +104,8 @@ func StaffGetPaginatedReadingOrders(
 		PatientName:      strings.TrimSpace(patientName),
 		PatientCode:      strings.TrimSpace(patientCode),
 		Phone:            strings.TrimSpace(phone),
-		Status:           strings.TrimSpace(status),
+		Status:           statusFilter,
+		AssignedTo:       assignedToFilter,
 		ResultReturned:   resultReturned,
 	}
 
@@ -251,6 +262,78 @@ func StaffSaveReadingOrderResult(
 	}
 
 	return buildReadingOrderDetailResponse(ctx, requesterUuid, readingOrder)
+}
+
+// StaffEndReadingAndApprove — "Kết thúc & Duyệt": chốt ca đang đọc thành ĐÃ DUYỆT.
+// Điều kiện: ca đang READING + assigned_to = user + result_in_html KHÔNG rỗng.
+// Tác động: read_completed_at=now, approved_at=now, approved_by=user, status=APPROVED.
+func StaffEndReadingAndApprove(
+	ctx context.Context,
+	requesterUuid uuid.UUID,
+	readingOrderUuid uuid.UUID,
+) (*teleradReadingOrderControllerResponses.StaffGetReadingOrderDetailResponse, *_error.SystemError) {
+	readingOrder, systemErr := loadReadingOrderForStaff(ctx, requesterUuid, readingOrderUuid)
+	if systemErr != nil {
+		return nil, systemErr
+	}
+
+	// Điều kiện: ca phải đang ĐANG ĐỌC và do chính user này nhận.
+	if readingOrder.Status != fieldValues.TELERAD_READING_ORDER_STATUS_READING.Value ||
+		readingOrder.AssignedTo == nil || *readingOrder.AssignedTo != requesterUuid {
+		return nil, _error.NewErrorByString(_errorMessages.TELERAD_E103_004)
+	}
+
+	// Bắt buộc đã có nội dung kết quả trước khi duyệt.
+	if readingOrder.ResultInHtml == nil || strings.TrimSpace(*readingOrder.ResultInHtml) == "" {
+		return nil, _error.NewErrorByString(_errorMessages.TELERAD_E103_006)
+	}
+
+	now := time.Now()
+	readingOrder.ReadCompletedAt = &now
+	readingOrder.ApprovedAt = &now
+	readingOrder.ApprovedBy = &requesterUuid
+	readingOrder.Status = fieldValues.TELERAD_READING_ORDER_STATUS_APPROVED.Value
+
+	if err := baseServices.UpdateWholeTeleradReadingOrderRecord(ctx, bunNoTransaction, requesterUuid, readingOrder); err != nil {
+		return nil, _error.New(err)
+	}
+
+	return buildReadingOrderDetailResponse(ctx, requesterUuid, readingOrder)
+}
+
+// StaffGetReadingOrderResultSheet trả mẫu phiếu kết quả của CSYT (telerad_partner) ca
+// đọc, dùng để dựng bản in. Lỗi nếu CSYT chưa cấu hình phiếu.
+func StaffGetReadingOrderResultSheet(
+	ctx context.Context,
+	requesterUuid uuid.UUID,
+	readingOrderUuid uuid.UUID,
+) (*teleradReadingOrderControllerResponses.StaffGetReadingOrderResultSheetResponse, *_error.SystemError) {
+	readingOrder, systemErr := loadReadingOrderForStaff(ctx, requesterUuid, readingOrderUuid)
+	if systemErr != nil {
+		return nil, systemErr
+	}
+
+	sheet, err := repositories.FindOneImagingResultSheetTemplateByPartner(ctx, bunNoTransaction, readingOrder.TeleradPartnerUuid, nil)
+	if err != nil {
+		return nil, _error.New(err)
+	} else if sheet == nil {
+		return nil, _error.NewErrorByString(_errorMessages.TELERAD_E105_001)
+	}
+
+	// Tên bác sĩ đọc (nếu đã phân công) -> token {{readBy}}.
+	readBy := ""
+	if readingOrder.AssignedTo != nil {
+		if doctor, err := baseServices.FindOneStaffAccountByUuid(ctx, bunNoTransaction, *readingOrder.AssignedTo); err != nil {
+			return nil, _error.New(err)
+		} else if doctor != nil {
+			readBy = doctor.FullName
+		}
+	}
+
+	response := objectMappers.ToStaffGetReadingOrderResultSheetResponse(
+		*readingOrder, sheet.HtmlContent, sheet.ResultFontSize, sheet.ResultLineSpacing, readBy,
+	)
+	return &response, nil
 }
 
 // loadReadingOrderForStaff tìm ca đọc + kiểm tra quyền truy cập (giống mở viewer):

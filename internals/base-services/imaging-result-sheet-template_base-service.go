@@ -15,10 +15,12 @@ func FindOneImagingResultSheetTemplateByUuid(ctx context.Context, tx bun.IDB, id
 	return repositories.FindOneByUuid[entities.ImagingResultSheetTemplateEntity](ctx, tx, id)
 }
 
-func InitNewImagingResultSheetTemplate(teleradPartnerUuid uuid.UUID, htmlContent string) entities.ImagingResultSheetTemplateEntity {
+func InitNewImagingResultSheetTemplate(teleradPartnerUuid uuid.UUID, htmlContent string, resultFontSize int16, resultLineSpacing float64) entities.ImagingResultSheetTemplateEntity {
 	return entities.ImagingResultSheetTemplateEntity{
 		TeleradPartnerUuid: teleradPartnerUuid,
 		HtmlContent:        htmlContent,
+		ResultFontSize:     resultFontSize,
+		ResultLineSpacing:  resultLineSpacing,
 		IsActive:           true,
 	}
 }

@@ -27,4 +27,5 @@ type StaffGetListReadingOrderResponse struct {
 	AssignedTo         *uuid.UUID `json:"assignedTo"`
 	AssignedToName     *string    `json:"assignedToName"`
 	Status             string     `json:"status"`
+	ResultReturned     bool       `json:"resultReturned"`
 }

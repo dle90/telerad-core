@@ -14,6 +14,8 @@ func ToStaffGetAImagingResultSheetTemplateResponse(template entities.ImagingResu
 		UpdatedBy:          template.UpdatedBy,
 		TeleradPartnerUuid: template.TeleradPartnerUuid,
 		HtmlContent:        template.HtmlContent,
+		ResultFontSize:     template.ResultFontSize,
+		ResultLineSpacing:  template.ResultLineSpacing,
 		IsActive:           template.IsActive,
 	}
 

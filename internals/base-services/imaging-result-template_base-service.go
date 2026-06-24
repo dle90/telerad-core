@@ -22,8 +22,6 @@ func InitNewImagingResultTemplate(request imagingResultTemplateControllerRequest
 		Name:         request.Name,
 		BodyParts:    request.BodyParts,
 		HtmlContent:  request.HtmlContent,
-		FontSize:     request.FontSize,
-		LineSpacing:  request.LineSpacing,
 		DisplayOrder: request.DisplayOrder,
 		IsActive:     true,
 	}

@@ -7,4 +7,7 @@ import "github.com/google/uuid"
 type StaffCreateImagingResultSheetTemplateRequest struct {
 	TeleradPartnerUuid uuid.UUID `json:"teleradPartnerUuid" validate:"required"`
 	HtmlContent        string    `json:"htmlContent" validate:"required"`
+	// Cỡ chữ + giãn dòng áp cho vùng kết quả khi IN phiếu.
+	ResultFontSize    int16   `json:"resultFontSize" validate:"required,min=1"`
+	ResultLineSpacing float64 `json:"resultLineSpacing" validate:"required,gt=0"`
 }

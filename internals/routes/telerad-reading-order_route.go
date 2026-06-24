@@ -22,6 +22,10 @@ func TeleradReadingOrderRoutes() {
 	staffCollection.Post("/:objectId/actions/cancel-lock", controllers.StaffCancelReadingOrderLock)
 	// lưu kết quả đọc (result_in_html)
 	staffCollection.Post("/:objectId/actions/save-result", controllers.StaffSaveReadingOrderResult)
+	// kết thúc & duyệt (READING của mình + có kết quả -> APPROVED)
+	staffCollection.Post("/:objectId/actions/end-reading-and-approve", controllers.StaffEndReadingAndApprove)
+	// mẫu phiếu kết quả của CSYT ca đọc (để in)
+	staffCollection.Get("/:objectId/result-sheet", controllers.StaffGetReadingOrderResultSheet)
 	// sinh URL mở PACS viewer cho 1 ca đọc (kèm view-token trong URL hash)
 	staffCollection.Get("/:objectId/generate-pacs-viewer-url", controllers.StaffGenerateImagingStudyViewerUrl)
 }

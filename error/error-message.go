@@ -26,6 +26,7 @@ const TELERAD_E103_002 string = "Bạn không có quyền đọc ca này"
 const TELERAD_E103_003 string = "Ca đọc không ở trạng thái chưa đọc"
 const TELERAD_E103_004 string = "Ca đọc không ở trạng thái đang đọc của bạn"
 const TELERAD_E103_005 string = "Bạn đang đọc ca %s của bệnh nhân %s" // format: order_item_code, full_name
+const TELERAD_E103_006 string = "Chưa có nội dung kết quả để duyệt"
 
 // Nhóm lỗi TELERAD E104: mẫu kết quả (imaging_result_template)
 const TELERAD_E104_001 string = "Mẫu kết quả không tồn tại"

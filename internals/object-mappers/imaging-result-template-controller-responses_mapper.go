@@ -16,8 +16,6 @@ func ToStaffGetAImagingResultTemplateResponse(template entities.ImagingResultTem
 		Name:         template.Name,
 		BodyParts:    emptyIfNil(template.BodyParts),
 		HtmlContent:  template.HtmlContent,
-		FontSize:     template.FontSize,
-		LineSpacing:  template.LineSpacing,
 		DisplayOrder: template.DisplayOrder,
 		IsActive:     template.IsActive,
 	}
@@ -32,8 +30,6 @@ func ToStaffGetListImagingResultTemplateSlice(templates []entities.ImagingResult
 			Modality:     template.Modality,
 			Name:         template.Name,
 			BodyParts:    emptyIfNil(template.BodyParts),
-			FontSize:     template.FontSize,
-			LineSpacing:  template.LineSpacing,
 			DisplayOrder: template.DisplayOrder,
 			IsActive:     template.IsActive,
 			CreatedAt:    template.CreatedAt,
