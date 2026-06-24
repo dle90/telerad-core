@@ -1,11 +1,11 @@
 package teleradReadingOrderControllerResponses
 
-// StaffGetReadingOrderResultSheetResponse — mẫu phiếu kết quả (của CSYT ca đọc) để dựng bản in.
+// PublicGetReadingOrderResultSheetResponse — mẫu phiếu kết quả (của CSYT ca đọc) để dựng bản in.
 //   htmlContent: HTML mẫu phiếu (chứa token {{...}}).
 //   resultFontSize/resultLineSpacing: CẤU HÌNH của phiếu (cột result_font_size/line_spacing),
 //     áp cho vùng kết quả khi in — để top-level (typed) vì là config, không phải token-data ca đọc.
 //   data: giá trị token NỘI DUNG ca đọc, KEY = ĐÚNG TÊN TOKEN -> frontend fillTokens, không map.
-type StaffGetReadingOrderResultSheetResponse struct {
+type PublicGetReadingOrderResultSheetResponse struct {
 	HtmlContent       string                `json:"htmlContent"`
 	ResultFontSize    int16                 `json:"resultFontSize"`
 	ResultLineSpacing float64               `json:"resultLineSpacing"`

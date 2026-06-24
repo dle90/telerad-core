@@ -200,18 +200,17 @@ func StaffEndReadingAndApprove(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
 }
 
-// StaffGetReadingOrderResultSheet — mẫu phiếu kết quả của CSYT ca đọc (để in).
-func StaffGetReadingOrderResultSheet(c *fiber.Ctx) error {
-	logger.Info("StaffGetReadingOrderResultSheet starting....")
+// PublicGetReadingOrderResultSheet — phiếu kết quả CÔNG KHAI (HIS / bệnh nhân xem qua link).
+// KHÔNG yêu cầu đăng nhập; uuid của ca đóng vai trò "khóa" truy cập.
+func PublicGetReadingOrderResultSheet(c *fiber.Ctx) error {
+	logger.Info("PublicGetReadingOrderResultSheet starting....")
 
 	readingOrderUuid, err := utils.GetUuidFromRequestPath(c, "objectId")
 	if err != nil {
 		return _error.HandleSystemError(c, _error.New(err))
 	}
 
-	userUuid := secure.GetUserUuidFromJwt(c)
-
-	result, systemErr := services.StaffGetReadingOrderResultSheet(c.Context(), userUuid, readingOrderUuid)
+	result, systemErr := services.PublicGetReadingOrderResultSheet(c.Context(), readingOrderUuid)
 	if systemErr != nil {
 		return _error.HandleSystemError(c, systemErr)
 	}
