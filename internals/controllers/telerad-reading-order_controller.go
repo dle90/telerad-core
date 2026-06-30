@@ -181,7 +181,8 @@ func StaffSaveReadingOrderResult(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
 }
 
-// StaffEndReadingAndApprove — "Kết thúc & Duyệt": chốt ca đang đọc thành ĐÃ DUYỆT.
+// StaffEndReadingAndApprove — "Kết thúc & Duyệt": lưu nội dung kết quả (html) rồi duyệt ca
+// (và trả kết quả sang đối tác nếu bật callback). Body: { resultInHtml }.
 func StaffEndReadingAndApprove(c *fiber.Ctx) error {
 	logger.Info("StaffEndReadingAndApprove starting....")
 
@@ -190,9 +191,34 @@ func StaffEndReadingAndApprove(c *fiber.Ctx) error {
 		return _error.HandleSystemError(c, _error.New(err))
 	}
 
+	var request teleradReadingOrderControllerRequests.StaffEndReadingAndApproveRequest
+	if err := commonUtils.RequestBodyParser(c, &request); err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
 	userUuid := secure.GetUserUuidFromJwt(c)
 
-	result, systemErr := services.StaffEndReadingAndApprove(c.Context(), userUuid, readingOrderUuid)
+	result, systemErr := services.StaffEndReadingAndApprove(c.Context(), userUuid, readingOrderUuid, request.ResultInHtml)
+	if systemErr != nil {
+		return _error.HandleSystemError(c, systemErr)
+	}
+
+	return c.Status(http.StatusOK).JSON(responses.NewBaseResponse(http.StatusOK, "success", result))
+}
+
+// StaffReturnResultToPartner — "Trả kết quả": gửi (hoặc gửi lại) kết quả 1 ca đã duyệt
+// về đối tác. Dùng để retry thủ công khi auto-callback lúc duyệt thất bại.
+func StaffReturnResultToPartner(c *fiber.Ctx) error {
+	logger.Info("StaffReturnResultToPartner starting....")
+
+	readingOrderUuid, err := utils.GetUuidFromRequestPath(c, "objectId")
+	if err != nil {
+		return _error.HandleSystemError(c, _error.New(err))
+	}
+
+	userUuid := secure.GetUserUuidFromJwt(c)
+
+	result, systemErr := services.StaffReturnResultToPartner(c.Context(), userUuid, readingOrderUuid)
 	if systemErr != nil {
 		return _error.HandleSystemError(c, systemErr)
 	}

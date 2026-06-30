@@ -3,7 +3,17 @@ package objectMappers
 import (
 	"telerad-core-module/internals/entities"
 	staffAccountControllerResponses "telerad-core-module/internals/responses/staff-account-controller_responses"
+
+	"github.com/google/uuid"
 )
+
+func ToStaffAccountCredentialResponse(staffUuid uuid.UUID, username, password string) staffAccountControllerResponses.StaffAccountCredentialResponse {
+	return staffAccountControllerResponses.StaffAccountCredentialResponse{
+		Uuid:     staffUuid,
+		Username: username,
+		Password: password,
+	}
+}
 
 func ToStaffGetListStaffAccountSlice(staffs []entities.StaffAccountEntity) []staffAccountControllerResponses.StaffGetListStaffAccountResponse {
 	result := make([]staffAccountControllerResponses.StaffGetListStaffAccountResponse, 0, len(staffs))

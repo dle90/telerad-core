@@ -43,19 +43,7 @@ func StaffGetPaginatedImagingResultTemplates(
 // hệ thống hỗ trợ + danh sách bộ phận chụp (PACS_BODY_PART).
 func StaffGetImagingResultTemplateFormOptions() imagingResultTemplateControllerResponses.StaffGetImagingResultTemplateFormOptionsResponse {
 	bodyParts := fieldValues.GetAllStringTypeByCode(fieldValues.PACS_BODY_PART)
-
-	options := make([]imagingResultTemplateControllerResponses.ImagingResultTemplateOption, 0, len(bodyParts))
-	for _, bodyPart := range bodyParts {
-		options = append(options, imagingResultTemplateControllerResponses.ImagingResultTemplateOption{
-			Value: bodyPart.Value,
-			Name:  bodyPart.Name,
-		})
-	}
-
-	return imagingResultTemplateControllerResponses.StaffGetImagingResultTemplateFormOptionsResponse{
-		Modalities: constants.MODALITIES,
-		BodyParts:  options,
-	}
+	return objectMappers.ToStaffGetImagingResultTemplateFormOptionsResponse(constants.MODALITIES, bodyParts)
 }
 
 func StaffGetAImagingResultTemplate(ctx context.Context, templateUuid uuid.UUID) (*imagingResultTemplateControllerResponses.StaffGetAImagingResultTemplateResponse, *_error.SystemError) {

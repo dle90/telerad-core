@@ -205,11 +205,8 @@ func StaffCreateAccount(
 		return nil, _error.New(err)
 	}
 
-	return &staffAccountControllerResponses.StaffAccountCredentialResponse{
-		Uuid:     staff.Uuid,
-		Username: username,
-		Password: plainPassword,
-	}, nil
+	response := objectMappers.ToStaffAccountCredentialResponse(staff.Uuid, username, plainPassword)
+	return &response, nil
 }
 
 // StaffResetPassword reset mật khẩu cho nhân viên ĐÃ có username (tự sinh mới, trả 1 lần).
@@ -243,11 +240,8 @@ func StaffResetPassword(
 		return nil, _error.New(err)
 	}
 
-	return &staffAccountControllerResponses.StaffAccountCredentialResponse{
-		Uuid:     staff.Uuid,
-		Username: *staff.Username,
-		Password: plainPassword,
-	}, nil
+	response := objectMappers.ToStaffAccountCredentialResponse(staff.Uuid, *staff.Username, plainPassword)
+	return &response, nil
 }
 
 func UserGetMe(ctx context.Context, userUuid uuid.UUID) (*staffAccountControllerResponses.UserGetMeResponse, *_error.SystemError) {

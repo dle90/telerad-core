@@ -89,13 +89,8 @@ func StaffCreateTeleradPartner(
 		return nil, _error.New(err)
 	}
 
-	return &teleradPartnerControllerResponses.StaffCreateTeleradPartnerResponse{
-		Uuid:     partner.Uuid,
-		Code:     partner.Code,
-		Name:     partner.Name,
-		IsActive: partner.IsActive,
-		Username: partner.Username,
-	}, nil
+	response := objectMappers.ToStaffCreateTeleradPartnerResponse(partner)
+	return &response, nil
 }
 
 func StaffUpdateTeleradPartner(

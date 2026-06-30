@@ -1,6 +1,9 @@
 package fieldValues
 
 const (
+	// Giới tính bệnh nhân
+	GENDER = "GENDER"
+
 	// Telerad reading order — trạng thái ca đọc (cột status)
 	TELERAD_READING_ORDER_STATUS = "TELERAD-READING-ORDER_STATUS"
 
@@ -8,6 +11,12 @@ const (
 	// Giữ NGUYÊN văn chuỗi PACS gửi (gồm cả các viết tắt / sai chính tả như FEMALEPELVIS,
 	// MALEPELVIS) để khớp đúng khi lookup.
 	PACS_BODY_PART = "PACS_BODY-PART"
+)
+
+var (
+	// Giới tính
+	GENDER_MALE   = ColumnValueString{Value: "MALE", Code: GENDER, Name: "Nam", ShortName: "Nam"}
+	GENDER_FEMALE = ColumnValueString{Value: "FEMALE", Code: GENDER, Name: "Nữ", ShortName: "Nữ"}
 )
 
 var (
@@ -56,6 +65,9 @@ var (
 )
 
 var allColumnValueString = []ColumnValueString{
+	// Giới tính
+	GENDER_MALE,
+	GENDER_FEMALE,
 	// Telerad reading order status
 	TELERAD_READING_ORDER_STATUS_UNREAD,
 	TELERAD_READING_ORDER_STATUS_READING,
@@ -92,6 +104,15 @@ var allColumnValueString = []ColumnValueString{
 	PACS_BODY_PART_MALEPELVIS,
 	PACS_BODY_PART_HAND,
 	PACS_BODY_PART_FEMUR,
+}
+
+// NameByValueAndCode trả Name (nhãn hiển thị) của 1 giá trị cột theo (value, code);
+// rỗng nếu không khớp.
+func NameByValueAndCode(value string, code string) string {
+	if cv := FromValueAndCodeString(value, code); cv != nil {
+		return cv.Name
+	}
+	return ""
 }
 
 func FromValueAndCodeString(value string, code string) *ColumnValueString {

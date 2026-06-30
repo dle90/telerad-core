@@ -4,15 +4,22 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
-	"strings"
 	"time"
 
 	"telerad-core-module/internals/constants"
 	"telerad-core-module/internals/entities"
+	fieldValues "telerad-core-module/internals/entities/field-values"
 	databaseQueryModels "telerad-core-module/internals/models/database-query_models"
 	teleradReadingOrderControllerResponses "telerad-core-module/internals/responses/telerad-reading-order-controller_responses"
 	"telerad-core-module/internals/types"
 )
+
+func ToStaffEndReadingAndApproveResponse(detail *teleradReadingOrderControllerResponses.StaffGetReadingOrderDetailResponse, resultReturnFailed bool) teleradReadingOrderControllerResponses.StaffEndReadingAndApproveResponse {
+	return teleradReadingOrderControllerResponses.StaffEndReadingAndApproveResponse{
+		ReadingOrder:       detail,
+		ResultReturnFailed: resultReturnFailed,
+	}
+}
 
 // ToReadingOrderPartnerGroupSlice gom đối tác thành cây "loại chụp → đối tác" cho
 // màn "Đọc ca". Chỉ gom các loại chụp có trong allowedModalities (ADMIN truyền vào
@@ -132,7 +139,7 @@ func ToPublicGetReadingOrderResultSheetResponse(
 		Data: teleradReadingOrderControllerResponses.ReadingOrderPrintData{
 			PatientName:       ro.FullName,
 			PatientBirthYear:  printBirthYear(ro.DateOfBirth),
-			PatientGender:     printGenderLabel(ro.Gender),
+			PatientGender:     fieldValues.NameByValueAndCode(derefString(ro.Gender), fieldValues.GENDER),
 			IndicationPlace:   "",
 			ServiceName:       ro.ServiceName,
 			ClinicalDiagnosis: derefString(ro.ClinicalDiagnosis),
@@ -151,20 +158,6 @@ func derefString(s *string) string {
 	return *s
 }
 
-// printGenderLabel chuẩn hoá giới tính sang "Nam"/"Nữ" để in.
-func printGenderLabel(g *string) string {
-	if g == nil {
-		return ""
-	}
-	switch strings.ToUpper(strings.TrimSpace(*g)) {
-	case "MALE", "M", "NAM":
-		return "Nam"
-	case "FEMALE", "F", "NU", "NỮ":
-		return "Nữ"
-	default:
-		return *g
-	}
-}
 
 func printBirthYear(d *types.Date) string {
 	if d == nil || d.IsZero() {
