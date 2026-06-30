@@ -36,3 +36,8 @@ const TELERAD_E104_003 string = "Bộ phận chụp không hợp lệ"
 // Nhóm lỗi TELERAD E105: phiếu kết quả (imaging_result_sheet_template)
 const TELERAD_E105_001 string = "Phiếu kết quả không tồn tại"
 const TELERAD_E105_002 string = "Cơ sở y tế này đã có phiếu kết quả"
+
+// Nhóm lỗi TELERAD E106: trả kết quả về đối tác (callback)
+const TELERAD_E106_001 string = "Ca đọc chưa được duyệt nên chưa thể trả kết quả"
+const TELERAD_E106_002 string = "Đối tác chưa bật hoặc chưa đủ cấu hình callback để nhận kết quả"
+const TELERAD_E106_003 string = "Trả kết quả về đối tác thất bại: %s" // format: lý do lỗi

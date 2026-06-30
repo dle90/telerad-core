@@ -2,32 +2,15 @@ package repositories
 
 import (
 	"context"
-	"time"
 
 	"telerad-core-module/internals/entities"
 	fieldValues "telerad-core-module/internals/entities/field-values"
 	databaseQueryModels "telerad-core-module/internals/models/database-query_models"
+	filterModels "telerad-core-module/internals/models/filter_models"
 
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
-
-// ReadingOrderListFilter gom tham số lọc danh sách ca đọc màn "Đọc ca".
-// ScopePartnerUuids / ScopeModalities là phạm vi QUYỀN của user: nil = không giới
-// hạn (ADMIN); khác nil = chỉ lấy ca thuộc các partner / loại chụp này.
-type ReadingOrderListFilter struct {
-	IsAdmin          bool        // có phải admin không (quyền xem tất cả partner + modality)
-	PartnerUuids     []uuid.UUID // quyền: partner được đọc (nil = admin, không giới hạn)
-	Modalities       []string    // quyền: loại chụp được đọc (nil = admin, không giới hạn)
-	PerformEndedFrom *time.Time  // lọc theo ngày chụp (perform_ended_at) — từ
-	PerformEndedTo   *time.Time  // lọc theo ngày chụp — đến
-	PatientName      string      // tên bệnh nhân (ILIKE)
-	PatientCode      string      // mã bệnh nhân (ILIKE)
-	Phone            string      // số điện thoại (ILIKE)
-	Status           string      // tình trạng ca (status) — "" = tất cả
-	AssignedTo       *uuid.UUID  // lọc theo bác sĩ đang nhận (assigned_to) — nil = không lọc
-	ResultReturned   *bool       // đã trả kết quả chưa — nil = tất cả
-}
 
 // FindPaginatedReadingOrders trả danh sách ca đọc (kèm tên đối tác + tên bác sĩ
 // đọc) đã lọc/scope, sắp xếp ngày chụp mới nhất trước.
@@ -35,7 +18,7 @@ func FindPaginatedReadingOrders(
 	ctx context.Context,
 	tx bun.IDB,
 	page, pageSize int,
-	filter ReadingOrderListFilter,
+	filter filterModels.ReadingOrderListFilter,
 ) ([]databaseQueryModels.ReadingOrderListRow, int, error) {
 	var rows []databaseQueryModels.ReadingOrderListRow
 

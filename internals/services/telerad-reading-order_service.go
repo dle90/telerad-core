@@ -11,6 +11,8 @@ import (
 	"telerad-core-module/internals/constants"
 	"telerad-core-module/internals/entities"
 	fieldValues "telerad-core-module/internals/entities/field-values"
+	partnerIntegrationService "telerad-core-module/internals/integration-services/reading-partner"
+	filterModels "telerad-core-module/internals/models/filter_models"
 	objectMappers "telerad-core-module/internals/object-mappers"
 	"telerad-core-module/internals/repositories"
 	teleradReadingOrderControllerRequests "telerad-core-module/internals/requests/telerad-reading-order-controller_requests"
@@ -21,6 +23,7 @@ import (
 
 	_error "telerad-core-module/error"
 
+	"github.com/BeeTechHub/go-common/logger"
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 	"golang.org/x/net/html"
@@ -96,7 +99,7 @@ func StaffGetPaginatedReadingOrders(
 		assignedToFilter = &userUuid
 	}
 
-	filter := repositories.ReadingOrderListFilter{
+	filter := filterModels.ReadingOrderListFilter{
 		IsAdmin:          isAdmin,
 		PartnerUuids:     staff.TeleradPartnerUuids,
 		Modalities:       staff.Modalities,
@@ -307,14 +310,22 @@ func htmlResultToPlainText(h string) string {
 	}
 }
 
-// StaffEndReadingAndApprove — "Kết thúc & Duyệt": chốt ca đang đọc thành ĐÃ DUYỆT.
-// Điều kiện: ca đang READING + assigned_to = user + result_in_html KHÔNG rỗng.
-// Tác động: read_completed_at=now, approved_at=now, approved_by=user, status=APPROVED.
+// StaffEndReadingAndApprove — "Kết thúc & Duyệt": lưu nội dung kết quả (html) rồi chốt ca
+// thành ĐÃ DUYỆT, và (nếu đối tác bật callback) trả kết quả sang đối tác NGAY trong luồng.
+// Điều kiện: ca đang READING + assigned_to = user + resultInHtml KHÔNG rỗng.
+// Tác động: result_in_html/result_in_text=nội dung, read_completed_at=now, approved_at=now,
+// approved_by=user, status=APPROVED.
+//
+// 3 trường hợp (xem StaffEndReadingAndApproveResponse):
+//   - Lưu trạng thái thất bại            -> trả lỗi (FE báo thất bại)
+//   - Lưu OK + trả KQ OK / không cần trả -> resultReturnFailed=false (FE báo thành công)
+//   - Lưu OK + trả KQ thất bại           -> resultReturnFailed=true  (FE báo "duyệt OK nhưng trả KQ thất bại")
 func StaffEndReadingAndApprove(
 	ctx context.Context,
 	requesterUuid uuid.UUID,
 	readingOrderUuid uuid.UUID,
-) (*teleradReadingOrderControllerResponses.StaffGetReadingOrderDetailResponse, *_error.SystemError) {
+	resultInHtml string,
+) (*teleradReadingOrderControllerResponses.StaffEndReadingAndApproveResponse, *_error.SystemError) {
 	readingOrder, systemErr := loadReadingOrderForStaff(ctx, requesterUuid, readingOrderUuid)
 	if systemErr != nil {
 		return nil, systemErr
@@ -326,22 +337,110 @@ func StaffEndReadingAndApprove(
 		return nil, _error.NewErrorByString(_errorMessages.TELERAD_E103_004)
 	}
 
-	// Bắt buộc đã có nội dung kết quả trước khi duyệt.
-	if readingOrder.ResultInHtml == nil || strings.TrimSpace(*readingOrder.ResultInHtml) == "" {
+	// Bắt buộc có nội dung kết quả (kiểm tra nội dung FE gửi lên, giống "Lưu kết quả").
+	if strings.TrimSpace(resultInHtml) == "" {
 		return nil, _error.NewErrorByString(_errorMessages.TELERAD_E103_006)
 	}
 
+	// Lưu kết quả + chốt duyệt trong cùng 1 update.
 	now := time.Now()
+	readingOrder.ResultInHtml = &resultInHtml
+	resultInText := htmlResultToPlainText(resultInHtml)
+	readingOrder.ResultInText = &resultInText
 	readingOrder.ReadCompletedAt = &now
 	readingOrder.ApprovedAt = &now
 	readingOrder.ApprovedBy = &requesterUuid
 	readingOrder.Status = fieldValues.TELERAD_READING_ORDER_STATUS_APPROVED.Value
 
 	if err := baseServices.UpdateWholeTeleradReadingOrderRecord(ctx, bunNoTransaction, requesterUuid, readingOrder); err != nil {
+		return nil, _error.New(err) // lưu trạng thái thất bại -> báo thất bại
+	}
+
+	// Nếu đối tác bật callback -> trả kết quả ĐỒNG BỘ (làm tiếp nghiệp vụ nút "Trả KQ").
+	// Callback lỗi KHÔNG làm hỏng duyệt (ca đã APPROVED); chỉ đánh dấu resultReturnFailed
+	// để FE báo "duyệt OK nhưng trả KQ thất bại". result_returned được set bên trong
+	// returnResultToPartner khi gửi thành công.
+	resultReturnFailed := false
+	if partner, err := baseServices.FindOneTeleradPartnerByUuid(ctx, bunNoTransaction, readingOrder.TeleradPartnerUuid); err == nil && partner != nil && partner.Callback {
+		if systemErr := returnResultToPartner(ctx, requesterUuid, readingOrder, partner); systemErr != nil {
+			resultReturnFailed = true
+			logger.Warnf("trả kết quả về đối tác thất bại khi duyệt (readingOrder=%s): %s", readingOrder.Uuid, systemErr.ErrorMessage())
+		}
+	}
+
+	detail, systemErr := buildReadingOrderDetailResponse(ctx, requesterUuid, readingOrder)
+	if systemErr != nil {
+		return nil, systemErr
+	}
+
+	response := objectMappers.ToStaffEndReadingAndApproveResponse(detail, resultReturnFailed)
+	return &response, nil
+}
+
+// StaffReturnResultToPartner — hành động "Trả kết quả" thủ công: gửi (hoặc gửi lại)
+// kết quả 1 ca đã DUYỆT về đối tác. Dùng để retry khi auto-callback lúc duyệt thất bại
+// (đối tác tạm thời down). Kiểm tra quyền như mở ca; lỗi callback trả thẳng cho người dùng.
+func StaffReturnResultToPartner(
+	ctx context.Context,
+	requesterUuid uuid.UUID,
+	readingOrderUuid uuid.UUID,
+) (*teleradReadingOrderControllerResponses.StaffGetReadingOrderDetailResponse, *_error.SystemError) {
+	readingOrder, systemErr := loadReadingOrderForStaff(ctx, requesterUuid, readingOrderUuid)
+	if systemErr != nil {
+		return nil, systemErr
+	}
+
+	partner, err := baseServices.FindOneTeleradPartnerByUuid(ctx, bunNoTransaction, readingOrder.TeleradPartnerUuid)
+	if err != nil {
 		return nil, _error.New(err)
+	} else if partner == nil {
+		return nil, _error.NewErrorByString(_errorMessages.TELERAD_E101_001)
+	}
+
+	if systemErr := returnResultToPartner(ctx, requesterUuid, readingOrder, partner); systemErr != nil {
+		return nil, systemErr
 	}
 
 	return buildReadingOrderDetailResponse(ctx, requesterUuid, readingOrder)
+}
+
+// returnResultToPartner lõi dùng chung cho cả auto (lúc duyệt) lẫn thủ công: kiểm tra
+// ca đã duyệt + đối tác đủ cấu hình callback, lấy tên bác sĩ duyệt, gọi integration-service
+// đẩy sang đối tác, rồi đánh dấu result_returned khi gửi thành công.
+func returnResultToPartner(
+	ctx context.Context,
+	requesterUuid uuid.UUID,
+	readingOrder *entities.TeleradReadingOrderEntity,
+	partner *entities.TeleradPartnerEntity,
+) *_error.SystemError {
+	if readingOrder.Status != fieldValues.TELERAD_READING_ORDER_STATUS_APPROVED.Value {
+		return _error.NewErrorByString(_errorMessages.TELERAD_E106_001)
+	}
+	if !partner.Callback || partner.CallbackUrl == nil || strings.TrimSpace(*partner.CallbackUrl) == "" ||
+		partner.PartnerUsername == nil || partner.PartnerPassword == nil {
+		return _error.NewErrorByString(_errorMessages.TELERAD_E106_002)
+	}
+
+	// Tên bác sĩ duyệt -> gửi kèm cho đối tác hiển thị.
+	approvedByName := ""
+	if readingOrder.ApprovedBy != nil {
+		if doctor, err := baseServices.FindOneStaffAccountByUuid(ctx, bunNoTransaction, *readingOrder.ApprovedBy); err == nil && doctor != nil {
+			approvedByName = doctor.FullName
+		}
+	}
+
+	if err := partnerIntegrationService.SendReadingResultToPartner(ctx, partner, readingOrder, approvedByName); err != nil {
+		return _error.NewErrorByString(fmt.Sprintf(_errorMessages.TELERAD_E106_003, err.Error()))
+	}
+
+	now := time.Now()
+	readingOrder.ResultReturned = true
+	readingOrder.ResultReturnedAt = &now
+	readingOrder.ResultReturnedBy = &requesterUuid
+	if err := baseServices.UpdateWholeTeleradReadingOrderRecord(ctx, bunNoTransaction, requesterUuid, readingOrder); err != nil {
+		return _error.New(err)
+	}
+	return nil
 }
 
 // PublicGetReadingOrderResultSheet — phiếu kết quả CÔNG KHAI (HIS / bệnh nhân xem qua link).

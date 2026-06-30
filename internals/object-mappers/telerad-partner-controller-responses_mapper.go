@@ -5,6 +5,16 @@ import (
 	teleradPartnerControllerResponses "telerad-core-module/internals/responses/telerad-partner-controller_responses"
 )
 
+func ToStaffCreateTeleradPartnerResponse(partner entities.TeleradPartnerEntity) teleradPartnerControllerResponses.StaffCreateTeleradPartnerResponse {
+	return teleradPartnerControllerResponses.StaffCreateTeleradPartnerResponse{
+		Uuid:     partner.Uuid,
+		Code:     partner.Code,
+		Name:     partner.Name,
+		IsActive: partner.IsActive,
+		Username: partner.Username,
+	}
+}
+
 func ToStaffGetListTeleradPartnerSlice(partners []entities.TeleradPartnerEntity) []teleradPartnerControllerResponses.StaffGetListTeleradPartnerResponse {
 	result := make([]teleradPartnerControllerResponses.StaffGetListTeleradPartnerResponse, 0, len(partners))
 
